@@ -14,39 +14,72 @@ variables:
  buildConfiguration: 'Release'
 
 stages:
-  - stage: Build
-    displayName: 'Build Stage'
-    jobs:
-    - job: Build_Job
-      displayName: 'Build Job'
-      steps:
-      - task: UseDotNet@2
-        displayName: 'Install .NET Core SDK'
-        inputs:
-          version: 8.x
-          performMultiLevelLookup: true
-      - task: DotNetCoreCLI@2
-        inputs:
-          command: 'restore'
-          projects: 'home.csproj'
-          feedsToUse: 'select'
-          vstsFeed: '48817452-f5a2-4e25-b731-b44c6711660e'
-      - task: DotNetCoreCLI@2
-        displayName: Build
-        inputs:
-          command: build
-          projects: 'home.csproj'
-          arguments: '--configuration $(buildConfiguration) -r linux-x64 --self-contained true'
-      - task: DotNetCoreCLI@2
-        inputs:
-          command: publish
-          publishWebProjects: True
-          arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-          zipAfterPublish: True
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: Build_Job
+    displayName: 'Build Job'
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Install .NET Core SDK'
+      inputs:
+        version: 8.x
+        performMultiLevelLookup: true
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'restore'
+        projects: 'home.csproj'
+        feedsToUse: 'select'
+        vstsFeed: '48817452-f5a2-4e25-b731-b44c6711660e'
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: build
+        projects: 'home.csproj'
+        arguments: '--configuration $(buildConfiguration) -r linux-x64 --self-contained true'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: publish
+        publishWebProjects: True
+        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: True
 
-      - task: PublishPipelineArtifact@1
-        inputs:
-          targetPath: '$(Build.ArtifactStagingDirectory)' 
-          artifactName: 'myWebsite'
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: 
+        artifactName: 'drop'
 
+- stage: Deploy
+  displayName: Deploy
+  jobs:
+    - deployment: Deploy_to_Nginx
+      environment:
+        name: 'Development'
+        resourceType: VirtualMachine
+
+      strategy:
+        runOnce:
+         deploy:
+           steps:
+             - task: CopyFilesOverSSH@0
+               inputs:
+                 sshEndpoint: 'to_aws'
+                 sourceFolder: '$(Build.ArtifactStagingDirectory)'
+                 contents: '**'
+                 targetFolder: '/var/www/website'
+                 cleanTargetFolder: true
+                 cleanHiddenFilesInTarget: true
+                 readyTimeout: '20000' 
+             - task: SSH@0
+               inputs:
+                sshEndpoint: 'to_aws'
+                runOptions: 'commands'
+                commands: |
+                  sudo systemctl stop nginx
+                  sudo rm -rf /var/www/myapp/*
+                  sudo unzip -o /var/www/website/drop/**/.zip -d /var/www/website
+                  rm -rf drop*
+                  sudo systemctl start nginx
+                readyTimeout: '20000'
+         
 
