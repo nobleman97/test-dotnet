@@ -50,10 +50,10 @@ stages:
     #     artifactName: 'drop'
     - task: ArchiveFiles@2
       inputs:
-        rootFolderOrFile: '/home/ubuntu/myagent/_work/1/s/bin/Release/net8.0/linux-x64/'
+        rootFolderOrFile: '/home/ubuntu/myagent/_work/1/s/bin/Release/net8.0/linux-x64'
         includeRootFolder: true
         archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)'
         replaceExistingArchive: true
 
     - task: PublishPipelineArtifact@1
