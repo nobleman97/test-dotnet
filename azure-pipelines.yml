@@ -48,10 +48,17 @@ stages:
     #   inputs:
     #     targetPath: 
     #     artifactName: 'drop'
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '/home/ubuntu/myagent/_work/1/s/bin/Release/net8.0/linux-x64/'
+        includeRootFolder: true
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        replaceExistingArchive: true
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(Pipeline.Workspace)'
+        targetPath: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
         artifact: 'drop'
         publishLocation: 'pipeline'
         
@@ -77,32 +84,32 @@ stages:
             #      cleanHiddenFilesInTarget: true
             #      readyTimeout: '20000' 
 
-             - task: Bash@3
-               inputs:
-                 targetType: 'inline'
-                 script: |
-                   eval `ssh-agent -s`
-                   cd /home/ubuntu/.ssh
-                   pwd
-                   cat /home/ubuntu/.ssh/website
-                   ssh-add /home/ubuntu/.ssh/website
-                   scp -r $(System.ArtifactsDirectory)/* ubuntu@52.35.134.80:/var/www/website
-                   ssh ubuntu@52.35.134.80 '
-                     sudo systemctl stop nginx
-                     sudo rm -rf /var/www/website/*
-                     sudo unzip -o /var/www/website/drop/**/.zip -d /var/www/website
-                     sudo systemctl start nginx
-                   '
-            #  - task: SSH@0
+            #  - task: Bash@3
             #    inputs:
-            #     sshEndpoint: 'to_aws'
-            #     runOptions: 'commands'
-            #     commands: |
-            #       sudo service nginx stop
-            #       sudo rm -rf /var/www/website/*
-            #       sudo unzip -o /var/www/website/drop/**/.zip -d /var/www/website
-            #       rm -rf drop*
-            #       service nginx start
-            #     readyTimeout: '20000'
+            #      targetType: 'inline'
+            #      script: |
+            #        eval `ssh-agent -s`
+            #        cd /home/ubuntu/.ssh
+            #        pwd
+            #        cat /home/ubuntu/.ssh/website
+            #        ssh-add /home/ubuntu/.ssh/website
+            #        scp -r $(System.ArtifactsDirectory)/* ubuntu@52.35.134.80:/var/www/website
+            #        ssh ubuntu@52.35.134.80 '
+            #          sudo systemctl stop nginx
+            #          sudo rm -rf /var/www/website/*
+            #          sudo unzip -o /var/www/website/drop/**/.zip -d /var/www/website
+            #          sudo systemctl start nginx
+            #        '
+             - task: SSH@0
+               inputs:
+                sshEndpoint: 'to_aws'
+                runOptions: 'commands'
+                commands: |
+                  sudo service nginx stop
+                  sudo rm -rf /var/www/website/*
+                  sudo unzip -o /var/www/website/drop/**/.zip -d /var/www/website
+                  rm -rf drop*
+                  service nginx start
+                readyTimeout: '20000'
          
 
