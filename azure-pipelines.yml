@@ -52,8 +52,8 @@ stages:
       inputs:
         rootFolderOrFile: '/home/ubuntu/myagent/_work/1/s/bin/Release/net8.0/linux-x64'
         includeRootFolder: true
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)'
+        # archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
         replaceExistingArchive: true
 
     - task: PublishPipelineArtifact@1
