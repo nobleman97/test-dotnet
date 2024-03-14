@@ -61,25 +61,25 @@ stages:
         runOnce:
          deploy:
            steps:
-            #  - task: CopyFilesOverSSH@0
-            #    inputs:
-            #      sshEndpoint: 'to_aws'
-            #      sourceFolder: '$(Build.ArtifactStagingDirectory)'
-            #      contents: '**'
-            #      targetFolder: '/var/www/website'
-            #      cleanTargetFolder: true
-            #      cleanHiddenFilesInTarget: true
-            #      readyTimeout: '20000' 
+             - task: CopyFilesOverSSH@0
+               inputs:
+                 sshEndpoint: 'to_aws'
+                 sourceFolder: '$(Build.ArtifactStagingDirectory)'
+                 contents: '**'
+                 targetFolder: '/var/www/website'
+                 cleanTargetFolder: true
+                 cleanHiddenFilesInTarget: true
+                 readyTimeout: '20000' 
              - task: SSH@0
                inputs:
                 sshEndpoint: 'to_aws'
                 runOptions: 'commands'
                 commands: |
-                  sudo systemctl stop nginx
-                  sudo rm -rf /var/www/myapp/*
+                  sudo service nginx stop
+                  sudo rm -rf /var/www/website/*
                   sudo unzip -o /var/www/website/drop/**/.zip -d /var/www/website
                   rm -rf drop*
-                  sudo systemctl start nginx
+                  service nginx start
                 readyTimeout: '20000'
          
 
