@@ -76,7 +76,10 @@ stages:
                  targetType: 'inline'
                  script: |
                    eval `ssh-agent -s`
-                   ssh-add ~/.ssh/website
+                   cd /home/ubuntu/.ssh
+                   pwd
+                   cat /home/ubuntu/.ssh/website
+                   ssh-add /home/ubuntu/.ssh/website
                    scp -r $(System.ArtifactsDirectory)/* ubuntu@52.35.134.80:/var/www/website
                    ssh ubuntu@52.35.134.80 '
                      sudo systemctl stop nginx
