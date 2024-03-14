@@ -1,0 +1,51 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+  
+variables:
+ buildConfiguration: 'Release'
+
+stages:
+  - stage: Build
+    displayName: 'Build Stage'
+    jobs:
+    - job: Build_Job
+      displayName: 'Build Job'
+      steps:
+      - task: UseDotNet@2
+        displayName: 'Install .NET Core SDK'
+        inputs:
+          version: 8.x
+          performMultiLevelLookup: true
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'restore'
+          projects: 'home.csproj'
+          feedsToUse: 'select'
+          vstsFeed: '48817452-f5a2-4e25-b731-b44c6711660e'
+      - task: DotNetCoreCLI@2
+        displayName: Build
+        inputs:
+          command: build
+          projects: 'home.csproj'
+          arguments: '--configuration $(buildConfiguration) -r linux-x64 --self-contained true'
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: publish
+          publishWebProjects: True
+          arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+          zipAfterPublish: True
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(Build.ArtifactStagingDirectory)' 
+          artifactName: 'myWebsite'
+
+
