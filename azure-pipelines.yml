@@ -56,20 +56,20 @@ stages:
       environment:
         name: 'Development'
         resourceType: VirtualMachine
-
+        resourceName: ip-10-0-2-218
       strategy:
         runOnce:
          deploy:
            steps:
-             - task: CopyFilesOverSSH@0
-               inputs:
-                 sshEndpoint: 'to_aws'
-                 sourceFolder: '$(Build.ArtifactStagingDirectory)'
-                 contents: '**'
-                 targetFolder: '/var/www/website'
-                 cleanTargetFolder: true
-                 cleanHiddenFilesInTarget: true
-                 readyTimeout: '20000' 
+            #  - task: CopyFilesOverSSH@0
+            #    inputs:
+            #      sshEndpoint: 'to_aws'
+            #      sourceFolder: '$(Build.ArtifactStagingDirectory)'
+            #      contents: '**'
+            #      targetFolder: '/var/www/website'
+            #      cleanTargetFolder: true
+            #      cleanHiddenFilesInTarget: true
+            #      readyTimeout: '20000' 
              - task: SSH@0
                inputs:
                 sshEndpoint: 'to_aws'
