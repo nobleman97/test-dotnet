@@ -75,6 +75,7 @@ stages:
                inputs:
                  targetType: 'inline'
                  script: |
+                   eval `ssh-agent -s`
                    ssh-add ~/.ssh/website
                    scp -r $(System.ArtifactsDirectory)/* ubuntu@52.35.134.80:/var/www/website
                    ssh ubuntu@52.35.134.80 '
