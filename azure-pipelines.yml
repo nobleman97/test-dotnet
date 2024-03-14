@@ -36,19 +36,25 @@ stages:
       inputs:
         command: build
         projects: 'home.csproj'
-        arguments: '--configuration $(buildConfiguration) -r linux-x64 --self-contained true'
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: publish
-        publishWebProjects: True
-        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-        zipAfterPublish: True
+        arguments: '--configuration $(buildConfiguration) -r linux-x64 /p:PackageLocation="$(Build.ArtifactStagingDirectory)" /p:PublishSingleFile=true /p:PublishReadyToRun=True /p:TargetFramework=net8.0 /p:SelfContained=true /p:PublishTrimmed=True'
+    # - task: DotNetCoreCLI@2
+    #   inputs:
+    #     command: publish
+    #     publishWebProjects: True
+    #     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    #     zipAfterPublish: True
+
+    # - task: PublishPipelineArtifact@1
+    #   inputs:
+    #     targetPath: 
+    #     artifactName: 'drop'
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: 
-        artifactName: 'drop'
-
+        targetPath: '$(Pipeline.Workspace)'
+        artifact: 'drop'
+        publishLocation: 'pipeline'
+        
 - stage: Deploy
   displayName: Deploy
   jobs:
