@@ -51,16 +51,22 @@ stages:
     - task: ArchiveFiles@2
       inputs:
         rootFolderOrFile: '/home/ubuntu/myagent/_work/1/s/bin/Release/net8.0/linux-x64'
-        includeRootFolder: true
+        includeRootFolder: false
         archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-        replaceExistingArchive: true
+        # archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        # replaceExistingArchive: true
 
-    - task: PublishPipelineArtifact@1
+    - task: PublishBuildArtifacts@1
       inputs:
-        targetPath: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-        artifact: 'drop'
-        publishLocation: 'pipeline'
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        # publishLocation: 'Container'
+
+    # - task: PublishPipelineArtifact@1
+    #   inputs:
+    #     targetPath: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    #     artifact: 'drop'
+    #     publishLocation: 'pipeline'
         
 - stage: Deploy
   displayName: Deploy
